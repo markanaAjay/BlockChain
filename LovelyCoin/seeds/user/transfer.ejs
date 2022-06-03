@@ -34,6 +34,11 @@
                   </form>
               </div>
           </nav>
+
+         <div class="myDiv container">
+            <h4><b>Transfered Balance : </b></h4>
+            <label>Balance : </label><label id="balance"></label><br>
+        </div><br><br>
         <div class="myDiv container">
             <h4><b>Transfer : </b></h4>
             <input type="text" id="amount" class="form-control" placeholder="Amount"><br>
@@ -105,6 +110,7 @@
         contract = new web3.eth.Contract(ABI, CONTRACT_ADDRESS);
 
         console.log("Contract Object: ", contract);
+        checkBalance();
 
 
     } catch (error) {
@@ -155,6 +161,8 @@
 	                })
 	                .on("receipt", (receipt)=> {
 		            console.log("Receipt", receipt);
+                    checkBalance();
+
 		            alert("Transfer Successfully")
                     $.ajax({
                     type: 'POST',
@@ -201,6 +209,25 @@
 	
 
             })
+            async function checkBalance(){
+                let data = {
+                    account:account
+                }
+                $.ajax({
+                    type:"post",
+                    url:"/api/v1/user/checkBalance",
+                    data:data,
+                    success:function(result,status,xhr){
+                        console.log(result);
+                        $("#balance").text(result);
+
+                    },
+                    error:function(error){
+                        alert("Can not get data");
+                        return;
+                    }
+                })
+            }
         })
 
         </script>
