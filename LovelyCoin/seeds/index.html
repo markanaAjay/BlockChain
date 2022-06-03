@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html >
+  <head>
+    <title>ERC20 Token</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+	
+	<link rel="shortcut icon" href="#">
+    <style>  
+    .loader{
+        border: 9px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 9px solid #3498db;
+        width: 30px;
+        height: 30px;
+        -webkit-animation: spin 1s linear infinite;
+        
+        animation: spin 1s linear infinite;
+    }
+    
+    
+    @-webkit-keyframes spin {
+        0% {
+            -webkit-transform: rotate(0deg);
+        }
+        100% {
+            -webkit-transform: rotate(360deg);
+        }
+    }
+    
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+    
+    .show {
+        font-size: larger;
+        font-family: cursive;
+        align-self: center;
+    }
+    
+    .hide {
+        display: none;
+        visibility: hidden;
+        pointer-events: none;
+    }</style>
+	
+</head>
+
+<style>
+    
+    .myDiv {
+        border: 5px outset rgb(202, 202, 202);
+        background-color: rgb(159, 243, 215);    
+        text-align: center;
+    }
+    .buttons{
+        position: relative;
+        height: 60px;
+        width: 200px;
+        border: none;
+        outline: none;
+        color: white;
+        background:rgb(255, 255, 255);
+        cursor: pointer;
+        border-radius: 5px;
+        font-size: 18px;
+        font-family: 'Raleway', sans-serif;
+    }
+    
+    .button1 {background-color: lightblue;} 
+    </style>
+  <body class="container">
+      
+      <nav class="navbar navbar-light bg-light">
+          <div class="container-fluid">
+              <a class="navbar-brand">LUSD Token</a>
+              <form class="d-flex">
+                  
+                  <input type="button" class="btn btn-outline-success" id="btn-connect" value="Connect Metamask"></input>
+                </form>
+            </div>
+        </nav>
+        <center>
+            
+            <div id="msg" class="hide">
+                <div id="loader"  class="loader"></div>
+                Waiting For Conformation.....
+            </div>
+            <div id="msg2" class="hide">
+                <!-- Waiting For Conformation -->
+                <span style="    color: green;
+	        	font-size: 65px;"> Done</span>
+	           </div>
+	        <div id="msg3" class="hide">
+        <!-- Waiting For Conformation -->
+	        	<span style="color: rgb(255, 0, 0);
+	      	font-size: 65px;"> Rejected</span>
+	              </div>
+	     <div id="msg4" class="hide">
+                 <!-- Waiting For Conformation -->
+	          	<span style="color: rgb(255, 0, 0);
+	      	font-size: 65px;"> Something Went Wrong</span>
+	</div>
+     </center>
+
+<div class="myDiv container">
+    <h4><b>Mint : </b></h4>
+    
+	<input type="number" id="amt" class="form-control" width="400" placeholder="Amount" ><br>
+    <input type="button" class="btn btn-primary btn-lg" id="btn-mint" value="Mint"></input>
+
+	<!-- <button type="button" class="btn btn-primary btn-lg" onclick="mintToken()">Mint</button> -->
+    
+</div><br><br>
+
+<div class="myDiv container">
+    <h4><b>Transfer : </b></h4>
+    <input type="text" id="to" class="form-control" width="400" placeholder="To"><br>
+    <input type="text" id="amount" class="form-control" placeholder="Amount"><br>
+    <input type="button" class="btn btn-primary btn-lg" id="btn-transfer" value="Transfer"></input>
+
+    <!-- <button type="button" class="btn btn-primary btn-lg" onclick="transferToken()">Transfer</button> -->
+</div><br><br>
+
+<div class="myDiv container">
+    <h4><b>Transfer : </b></h4>
+    <input type="text" id="amount" class="form-control" placeholder="Amount"><br>
+    <input type="button" class="btn btn-primary btn-lg" id="btn-transfercontract" value="Transfer"></input>
+
+    <!-- <button type="button" class="btn btn-primary btn-lg" onclick="transferToken()">Transfer</button> -->
+</div><br><br>
+
+<div class="myDiv container">
+    <h4><b>Check Balance : </b></h4>
+    <input type="text" id="account" class="form-control" placeholder="Account"><br>
+    <label id="bal"></label> Balance : <br>
+    <input type="button" class="btn btn-primary btn-lg" id="btn-balance" value="Balance"></input>
+
+    <!-- <button type="button" class="btn btn-primary btn-lg" onclick="checkBalance()">Balance</button> -->
+	
+</div><br><br>
+
+<div class="myDiv container">
+    <h4><b>Total Supply : </b></h4>
+    Total : <label id="total"></label><br>
+    <input type="button" class="btn btn-primary btn-lg" id="btn-totalsupply" value="Total_Supply"></input>
+
+    <!-- <button type="button" class="btn btn-primary btn-lg" onclick="checkTotalSupply()">Total_Supply</button> -->
+    
+</div><br><br>
+
+<div class="myDiv container">
+    <h4><b>Burn : </b></h4>
+    <input type="text" id="amts" width="400" class="form-control" placeholder="Amount"><br>
+    <input type="button" class="btn btn-primary btn-lg" id="btn-burn" value="Burn"></input>
+
+    <!-- <button type="button" class="btn btn-primary btn-lg" onclick="burnToken()">Burn</button> -->
+    
+</div>
+<br><br>
+
+<div class="myDiv container">
+    <h4><b>Allowance : </b></h4>
+    <input type="text" id="owner" width="400" class="form-control" placeholder="Owner"><br>
+    <input type="text" id="spender" width="400" class="form-control" placeholder="Spender"><br>
+    Amount Allowed : <label id="amountAll"></label><br>
+    <input type="button" class="btn btn-primary btn-lg" id="btn-allowance" value="Allowance"></input>
+
+    <!-- <button type="button" class="btn btn-primary btn-lg" onclick="giveAllowance()">Allowance</button> -->
+    
+</div>
+<br><br>
+
+<div class="myDiv container">
+    <h4><b>Approve : </b></h4>
+    <input type="text" id="spend" width="400" class="form-control" placeholder="Spender" ><br>
+    <input type="number" id="allow_amt" width="400" class="form-control" placeholder="amount"><br>
+    <input type="button" class="btn btn-primary btn-lg" id="btn-approve" value="Approve"></input>
+
+    <!-- <button type="button" class="btn btn-primary btn-lg" onclick="approved()">Approve</button> -->
+    
+</div>
+<br><br>
+
+<div class="myDiv container">
+    <h4><b>TransferFrom : </b></h4>
+    <input type="text" id="fromacc" width="400" class="form-control" placeholder="From"><br>
+    <input type="text" id="toacc" width="400" class="form-control" placeholder="To"><br>
+    <input type="number" id="amounts" class="form-control" placeholder="Amount"><br>
+    <input type="button" class="btn btn-primary btn-lg" id="btn-transferfrom" value="Transfer_From"></input>
+
+    <!-- <button type="button" class="btn btn-primary btn-lg" onclick="transferFromToken()">Transfer_From</button> -->
+    
+</div>
+<br><br>
+
+<div class="myDiv container">
+    <h4><b>increaseAllowance : </b></h4>
+    <input type="text" id="spen" width="400" class="form-control" placeholder="Spender"><br>
+    <input type="number" id="mount" class="form-control" placeholder="Amount"><br>
+    <input type="button" class="btn btn-primary btn-lg" id="btn-increase" value="Increase_Allowance"></input>
+
+    <!-- <button type="button" class="btn btn-primary btn-lg" onclick="increaseAllowance()">Increase_Allowance</button> -->
+    
+</div>
+<br><br>
+
+
+<div class="myDiv container">
+    <h4><b>decreaseAllowance : </b></h4>
+</b><input type="text" id="spdr" width="400" class="form-control" placeholder="Spender"><br>
+<input type="number" id="ams" class="form-control" placeholder="Amount"><br>
+<input type="button" class="btn btn-primary btn-lg" id="btn-decrease" value="Decrease_Allowance"></input>
+
+<!-- <button type="button" class="btn btn-primary btn-lg" onclick="decreaseAllowance()">Decrease_Allowance</button> -->
+
+</div>
+<br><br>
+
+<div class="myDiv container">
+    <h4><b>transferOwnership : </b></h4>
+    <input type="text" id="newOwner" width="400" class="form-control" placeholder="New Owner"><br>
+    <input type="button" class="btn btn-primary btn-lg" id="btn-ownership" value="Transfer_Ownership"></input>
+
+<!-- <button type="button" class="btn btn-primary btn-lg" onclick="transferOwnership()">Transfer_Ownership</button> -->
+
+</div>
+<br><br>
+
+<div class="myDiv container">
+    <h4><b>renounceOwnership : </b></h4>
+    <input type="button" class="btn btn-primary btn-lg" id="btn-renounce" value="Renounce_Ownership"></input>
+
+    <!-- <button type="button" class="btn btn-primary btn-lg" onclick="renounceOwnership()">Renounce_Ownership</button> -->
+    
+</div>
+<br><br>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
+        crossorigin="anonymous"></script>
+<script src="./assets/js/jquery.js"></script>
+<script src="./assets/js/web3.min.js"></script>
+<script src="./assets/js/abi.js"></script>
+<script src="./assets/js/contractAddress.js"></script>
+
+<script src="./web3.js"></script>
+</body>
+</html>

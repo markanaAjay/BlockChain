@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html >
+  <head>
+    <title>User</title>
+
+    <link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' rel='stylesheet' type='text/css'>
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+   
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
+    <link rel="shortcut icon" href=" ">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+        <meta name="description" content="Login and Registration Form with HTML5 and CSS3" />
+        <meta name="keywords" content="html5, css3, form, switch, animation, :target, pseudo-class" />
+        <meta name="author" content="Codrops" />
+        <link rel="shortcut icon" href="#">
+        <link rel="stylesheet" type="text/css" href="./css/demo.css" />
+        <link rel="stylesheet" type="text/css" href="./css/style.css" />
+        <link rel="stylesheet" type="text/css" href="./css/animate-custom.css" />
+    
+  </head>
+  
+    <body>
+        <nav class="navbar navbar-light bg-light">
+            <div class="container-fluid">
+                <a class="navbar-brand">LUSD Token</a>
+                <form class="d-flex">
+                    
+                    <input type="button" class="btn btn-outline-success" id="btn-connect" value="Connect Metamask"></input>
+                  </form>
+              </div>
+          </nav>
+        <div class="myDiv container">
+            <h4><b>Transfer : </b></h4>
+            <input type="text" id="amount" class="form-control" placeholder="Amount"><br>
+            <input type="button" class="btn btn-primary btn-lg" id="btn-transfercontract" value="Transfer"></input>
+        
+            <!-- <button type="button" class="btn btn-primary btn-lg" onclick="transferToken()">Transfer</button> -->
+        </div><br><br>
+
+        <script>
+            $(document).ready(function(e){
+
+            web3 = new Web3(window.web3.currentProvider);
+
+            let oContractObject;
+            var contract;
+            let account;
+            const BINANCE_CHAINID = `0x${Number(1337).toString(16)}`;
+
+
+            
+            async function metamaskCheck() {
+
+            try {
+                if (window.ethereum != 'undefined') {
+                    oWeb3 = new Web3(window.ethereum);
+                    console.log("Metamask is installed");
+                    const reqAccount = await ethereum.request({ method: "eth_requestAccounts" })
+                    console.log(`Connected to ${reqAccount} account`);
+                    return reqAccount;
+                }
+            } catch (error) {
+                console.log(error); 
+            }
+
+            }
+
+            $("#btn-connect").on('click', async() => {
+
+    try {
+        metamaskCheck();
+
+        let reqChainId = await window.ethereum.request({
+            method: "eth_chainId"
+        })
+
+        console.log(`Metamask is connected to ${reqChainId} chain ID`);
+
+        try {
+            await window.ethereum.request({
+                method: "wallet_switchEthereumChain",
+                params: [{ chainId: BINANCE_CHAINID }]
+            })
+            reqAccount = await window.ethereum.request({
+                method: "eth_requestAccounts"
+            })
+            account = reqAccount[0];
+            console.log("Account address: ", account.toString());
+
+            finalChainId = await window.ethereum.request({
+                method: "eth_chainId"
+            })
+
+            console.log(`Connected metamask account: ${finalChainId}`);
+
+        } catch (error) {
+            console.log(error);
+        }
+
+        contract = new web3.eth.Contract(ABI, CONTRACT_ADDRESS);
+
+        console.log("Contract Object: ", contract);
+
+
+    } catch (error) {
+        console.log(error);
+    }
+
+})
+
+
+            $("#btn-transfercontract").on("click",async function(e){
+
+                if(!account){
+                    alert("Connect to metamask First!");
+                    return;
+                }
+
+                let data = {
+		            sUserId:account,
+		            nTokens : $("#amount").val()
+	            }
+                let sAccount = await window.ethereum.request({
+		            method: "eth_requestAccounts"
+	            })
+	            //console.log(sAccount);
+                let nToken = $("#amount").val();
+
+	            if( !nToken || isNaN(nToken)){
+		            alert("Please Enter valid Amount!");
+		            return;
+	            }
+	            let nEstimateTransfergas;
+	            nToken = (nToken)*10**4;
+
+	            try{
+	                contract.methods.transfer(ADMIN_CONTRACT_ADDRESS, nToken).estimateGas({from : account}).then(function(gasAmount)
+	                {
+		                nEstimateTransfergas=Number(gasAmount);
+		                console.log(gasAmount);
+	                }).catch(function(error){
+		                console.log(error);
+		                alert(error);
+		                return;
+	                });
+
+                    contract.methods.transfer(ADMIN_CONTRACT_ADDRESS, nToken).send({gas : nEstimateTransfergas, from: account})
+	                .on("transactionHash", (txHash) => {
+		            console.log("Transaction Hash: ", txHash);
+	                })
+	                .on("receipt", (receipt)=> {
+		            console.log("Receipt", receipt);
+		            alert("Transfer Successfully")
+                    $.ajax({
+                    type: 'POST',
+                    url: '/api/v1/user/transfer',
+                    data: data,
+                    success:function(result,status,xhr){
+                        console.log("result =>>>> : ",result);
+                    },
+                    error:function(error){
+                        alert("Transaction is Failed");
+                        return;
+                    }
+
+                    })
+                	})
+	                .catch((err) => {
+		            console.error(err);
+		            alert("Error: Failed to Transfer")
+                	})
+
+	            }
+	            catch(error){
+		            console.log(error);
+            	}
+                
+                // if(data){
+                //     $.ajax({
+                //     type: 'post',
+                //     url: '/api/v1/user/transfer',
+                //     data: data,
+                //     success:function(result,status,xhr){
+                //         console.log("result =>>>> : ",result);
+                //     },
+                //     error:function(error){
+                //         alert("Transaction is Failed");
+                //         return;
+                //     }
+
+                // })
+                // }else{
+                //     alert("can not get data");
+                //     return;
+                // }
+	
+
+            })
+        })
+
+        </script>
+         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
+         integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
+         crossorigin="anonymous"></script>
+         <script src="../assets/js/jquery.js"></script>
+         <script src="../assets/js/web3.min.js"></script>
+         <script src="../assets/js/abi.js"></script>
+         <script src="../assets/js/contractAddress.js"></script>
+    </body>
+</html>
