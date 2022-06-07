@@ -7,33 +7,33 @@ const userData = {};
 
 userData.transfer = async (req, res) => {
   try {
-    let amount = req.body.nTokens;
-    let id = req.body.sUserId;
+    let nAmount = req.body.nTokens;
+    let sId = req.body.sUserId;
 
-    if (!amount || !id) {
+    if (!nAmount || !sId) {
       return res.status(400).send("Data not found!");
     }
 
-    const findData = await User.findOne({ sUserId: id });
-    console.log("Finded Data", findData);
-    if (findData) {
-      console.log("Find Data", findData);
+    const oFindData = await User.findOne({ sUserId: sId });
+    console.log("Finded Data", oFindData);
+    if (oFindData) {
+      console.log("Find Data", oFindData);
 
-      const result = await User.findOneAndUpdate(
-        { sUserId: id },
-        { $set: { nTokens: Number(findData.nTokens) + Number(amount) } }
+      const oUpdatedData = await User.findOneAndUpdate(
+        { sUserId: sId },
+        { $set: { nTokens: Number(oFindData.nTokens) + Number(nAmount) } }
       );
     } else {
-      console.log(amount);
-      console.log(id);
+      console.log(nAmount);
+      console.log(sId);
       const oData = new User({
-        sUserId: id,
-        nTokens: amount,
+        sUserId: sId,
+        nTokens: nAmount,
       });
 
-      const result = await oData.save();
+      const oResult = await oData.save();
 
-      if (!result) {
+      if (!oResult) {
         return res.status(400).send("Error in Transaction..");
       } else {
         return res.status(200).send("Transaction is Done");
@@ -46,16 +46,16 @@ userData.transfer = async (req, res) => {
 
 userData.getBalance = async (req, res) => {
   try {
-    let account = req.body.account;
+    let sAccount = req.body.account;
 
-    let result = await User.findOne({ sUserId: account });
-    console.log(result);
+    let oResult = await User.findOne({ sUserId: sAccount });
+    console.log("oResult : ", oResult);
 
-    if (result) {
-      let balance = result.nTokens;
-      console.log(balance);
-      if (balance > 0) {
-        return res.status(200).send(`${balance}`);
+    if (oResult) {
+      let nBalance = oResult.nTokens;
+      console.log("NBalance:", nBalance);
+      if (nBalance > 0) {
+        return res.status(200).send(`${nBalance}`);
       }
     } else {
       return res.status(400).send("Data not Found");

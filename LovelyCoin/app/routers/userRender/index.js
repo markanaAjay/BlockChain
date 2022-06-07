@@ -6,4 +6,8 @@ rRouter.get("/transfer", oControllers.transfer);
 
 rRouter.get("/adminPage", oControllers.admin);
 
+rRouter.get("/signup", oControllers.signup);
+
+rRouter.get("/signin", oControllers.signin);
+
 module.exports = { rRouter };

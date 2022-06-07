@@ -1,8 +1,8 @@
 const validators = {};
 
-validators.isEmailValid = (sEmail) => {
-    return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(sEmail);
-}
-
+validators.validatePassword = function (input) {
+  let passRegex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*#?&^_-]).{8,}/;
+  return input.match(passRegex);
+};
 
 module.exports = validators;

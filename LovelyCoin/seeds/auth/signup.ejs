@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html >
+  <head>
+    <title>SignUp</title>
+
+    <link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' rel='stylesheet' type='text/css'>
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+   
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
+   <link rel="shortcut icon" href=" ">
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+        <meta name="description" content="Login and Registration Form with HTML5 and CSS3" />
+        <meta name="keywords" content="html5, css3, form, switch, animation, :target, pseudo-class" />
+        <meta name="author" content="Codrops" />
+        <link rel="shortcut icon" href="../favicon.ico"> 
+        <link rel="stylesheet" type="text/css" href="./css/demo.css" />
+        <link rel="stylesheet" type="text/css" href="./css/style.css" />
+    <link rel="stylesheet" type="text/css" href="./css/animate-custom.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4-rc.0/web3.min.js"></script>
+
+
+
+
+   
+    
+  </head>
+  
+  <body>
+
+      <div class="container">
+        
+       <section>        
+                <div id="container_demo" >
+                    <!-- hidden anchor to stop jump http://www.css3create.com/Astuce-Empecher-le-scroll-avec-l-utilisation-de-target#wrap4  -->
+                    <a class="hiddenanchor" id="toregister"></a>
+                    <a class="hiddenanchor" id="tologin"></a>
+                    <div id="wrapper">
+                        <div id="register" class="animate form">
+                                <h1> Sign up </h1> 
+                                <p> 
+                                    <label for="usernamesignup" class="uname" data-icon="u">Your username</label>
+                                    <input type="text"  name="name" id="n" class="form-control" placeholder="Name">
+
+                                </p>
+              
+                                <p> 
+                                    <label for="passwordsignup" class="youpasswd" data-icon="p">Your password </label>
+                                    <input type="password"  name="password" id="p" class="form-control" placeholder="password">
+
+                                </p>
+                                <p>
+                                  <div id="createdata"><h2></h2></div>
+
+                                </p>
+                                <p>
+                                  <h6>Password Must Be 8 Char Long And 1 Special Char,1 Upper&Lower,1 Digit<h6>
+                                </p>
+                                <p class="signin button"> 
+                                    <button id="signup" class="w3-container w3-teal"  >SignUp</Button>
+                                </p>
+                                <p class="change_link">  
+                                Already a member ?
+                                <button onclick="location.href = '/user/signin';" class="w3-container w3-teal" type="submit" >Already Have Account?</Button>
+                                </p>
+                        </div>
+            
+                    </div>
+                </div>  
+            </section>
+          </div>
+
+      <script>
+        $(document).ready(function(){
+
+          function validatePassword(input){
+            let passRegex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*#?&^_-]).{8,}/ ;
+            return (input.match(passRegex));
+          }
+
+          $("#signup").on('click', async function(e){
+            let data = {
+              sUserName:$("#n").val(),
+              sPassword : $("#p").val(),
+            }
+
+            if(validatePassword(data.sPassword)){
+              $.ajax({
+                type: 'POST',
+                url: '/api/v1/auth/signup/',
+                data: data,
+                success:async function(result,status,xhr){
+                  console.log(result);
+                //   swal({
+                //   title: "Good job!",
+                //   text: "you are Successfully SignedIn!",
+                //   icon: "success"
+                //   }); 
+                  try{
+                      console.log("Metamask");
+                      const web3 = new Web3(window.ethereum);
+                        if (typeof window.ethereum !== "undefined") {
+                            console.log("Installed");
+                        } else {
+                        console.log("Not Installed");
+                        }
+                    const Fetch_sAccountAddress = await ethereum.request({
+                      method: "eth_requestAccounts",
+                    });
+                    console.log(Fetch_sAccountAddress[0]);
+                    sAccountAddress = `${Fetch_sAccountAddress[0]}`;
+
+                    console.log(await ethereum.request({ method: "eth_chainId" }));
+                    setTimeout(() =>{
+                    window.location.assign("http://localhost:3000/user/transfer")
+
+                  },2000) 
+                
+            
+                }
+                catch(error){
+                    alert("MetaMask Refused to connect")
+                    console.log(error);
+                }
+                  // setTimeout(() =>{
+                  //   window.location.assign("http://localhost:3000/user/transfer")
+
+                  // },2000)                
+                },
+                error: function(error){
+                  console.log(error);
+                  swal({
+                  title: "Bad job!",
+                  text: "SignUp Failed Due to Email or password validation!",
+                  icon: "error",
+                  });                
+                }
+              })
+            }
+            else{
+              swal({
+                  title: "Bad job!",
+                  text: "SignUp Failed Due to Email or password validation!",
+                  icon: "error",
+                  });
+            }
+            
+          })
+
+        })
+
+      </script>
+
+  
+  </body>
+  
+  </html>

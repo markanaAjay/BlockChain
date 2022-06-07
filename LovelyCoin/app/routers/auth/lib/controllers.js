@@ -1,89 +1,122 @@
-const validators = require("./validators");
-const { User } = require("../../../models");
-
+const express = require("express");
+const { UserData } = require("../../../models/");
+const bcrypt = require("bcryptjs");
+const { json } = require("express");
 const jwt = require("jsonwebtoken");
+const session = require("express-session");
+const validators = require("./validators");
 
-const controllers = {};
+const authControllers = {};
 
-controllers.signup = async (req, res) => {
+authControllers.signup = async (req, res) => {
+  let aRequiredFields = [];
 
-    let aRequiredFields = [];
+  if (!req.body.sUserName) aRequiredFields.push("Name");
 
-    if (!req.body.sEmail)
-        aRequiredFields.push("Email ID");
+  if (!req.body.sPassword) aRequiredFields.push("Password");
 
-    if (!req.body.sName)
-        aRequiredFields.push("Name");
-
-    if (!req.body.sPassword)
-        aRequiredFields.push("Password");
-
-    if (aRequiredFields.length)
-        return res.status(400).json({
-            message: "Required Fields: " + aRequiredFields.join(", ")
-        });
-
-    if (!validators.isEmailValid(req.body.sEmail))
-        return res.status(400).json({
-            message: "Invalid Email ID"
-        });
-
-    let oUser = new User({
-        sName: req.body.sName,
-        sEmail: req.body.sEmail,
-        sPassword: req.body.sPassword
+  if (aRequiredFields.length)
+    return res.status(400).json({
+      message: "Required Fields: " + aRequiredFields.join(", "),
     });
-    await oUser.save();
 
-    return res.status(200).json({
-        message: "User Created Successfully"
+  if (!validators.validatePassword(req.body.sPassword))
+    return res.status(400).json({
+      message: "Invalid Password Pattern",
     });
+
+  let oUserData = {
+    sUserName: req.body.sUserName,
+    sPassword: req.body.sPassword,
+  };
+  console.log(oUserData);
+
+  let sUserId = await bcrypt.hash(req.body.sUserName, 8);
+  console.log(sUserId);
+  if (!sUserId) {
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+
+  let oUsersData = await UserData.findOne({ sUserName: req.body.sUserName });
+  console.log(oUserData);
+  if (oUsersData) {
+    console.log("Data is available");
+    return res.status(400).json({
+      message: "UserName is Available",
+    });
+  } else {
+    await bcrypt.hash(req.body.sPassword, 8, async (err, hash) => {
+      if (err) {
+        return res.status(500).send("Error");
+      } else {
+        const oUser = new UserData({
+          sUserId: sUserId,
+          sUserName: req.body.sUserName,
+          sPassword: hash,
+        });
+        console.log("oUser : ", oUser);
+        await oUser.save().then((result, err) => {
+          console.log("oResult : ", result);
+          return res.status(200).json({
+            message: "You are registered",
+            data: oUser,
+          });
+        });
+      }
+    });
+  }
 };
 
-controllers.signin = async (req, res) => {
-    let aRequiredFields = [];
+authControllers.signin = async (req, res) => {
+  let aRequiredFields = [];
 
-    if (!req.body.sEmail)
-        aRequiredFields.push("Email ID");
+  if (!req.body.sUserName) aRequiredFields.push("Name");
 
-    if (!req.body.sPassword)
-        aRequiredFields.push("Password");
+  if (!req.body.sPassword) aRequiredFields.push("Password");
 
-    if (aRequiredFields.length)
-        return res.status(400).json({
-            message: "Required Fields: " + aRequiredFields.join(", ")
+  if (aRequiredFields.length)
+    return res.status(400).json({
+      message: "Required Fields: " + aRequiredFields.join(", "),
+    });
+
+  var oResult = await UserData.find({ sUserName: req.body.sUserName });
+  if (oResult.length < 1) {
+    return res.status(401).json({
+      message: "user does not exist",
+    });
+  }
+  bcrypt.compare(
+    req.body.sPassword,
+    oResult[0].sPassword,
+    async (err, result) => {
+      if (!result) {
+        return res.status(401).json({
+          message: "Wrong Password",
         });
+      }
 
-    let oUser = await User.findOne({
-        sEmail: req.body.sEmail,
-        sPassword: req.body.sPassword
-    });
+      if (result) {
+        const sToken = await jwt.sign(
+          {
+            sUserName: oResult[0].sUserName,
+          },
+          "LUSD",
+          {
+            expiresIn: "24h",
+          }
+        );
+        console.log(sToken);
 
-    if (!oUser)
-        return res.reply(messages.wrong_credentials())
+        return res.status(200).json({
+          message: "You are loggedin",
+          token: sToken,
+        });
+        //return res.reply(messages.successfully("You are loggedin"),sToken)
+      }
+    }
+  );
+};
 
-    // Create token
-    const token = jwt.sign(
-        { sEmail: oUser.sEmail, iUserID: oUser._id },
-        process.env.JWT_SECRET,
-        {
-            expiresIn: "1d",
-        }
-    );
-
-    req.session["iUserID"] = oUser._id;
-    req.session["sName"] = oUser.sName;
-
-    return res.reply(messages.successfully("Login"), {
-        sUserName: oUser.sName,
-        token
-    });
-}
-
-controllers.signout = async (req, res) => {
-    if (!req.userID) return res.reply(messages.unauthorized());
-
-    return res.reply(messages.successfully("user logout"));
-}
-
-module.exports = controllers;
+module.exports = { authControllers };

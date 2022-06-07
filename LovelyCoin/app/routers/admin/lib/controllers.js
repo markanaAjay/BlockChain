@@ -5,15 +5,15 @@ const controllers = {};
 controllers.getBalance = async (req, res) => {
   try {
     console.log(req.body);
-    let account = req.body.userAccount;
-    console.log(account);
+    let sAccount = req.body.userAccount;
+    console.log(sAccount);
 
-    let result = await User.findOne({ sUserId: account.toLowerCase() });
-    console.log(result);
-    if (result || result.nTokens > 0) {
-      let balance = result.nTokens;
-      console.log(balance);
-      return res.status(200).send(`${balance}`);
+    let oResult = await User.findOne({ sUserId: sAccount.toLowerCase() });
+    console.log(oResult);
+    if (oResult || oResult.nTokens > 0) {
+      let nBalance = oResult.nTokens;
+      console.log(nBalance);
+      return res.status(200).send(`${nBalance}`);
     } else {
       return res.status(400).send("Account not found");
     }
@@ -26,19 +26,20 @@ controllers.getBalance = async (req, res) => {
 controllers.delete = async (req, res) => {
   try {
     console.log(req.body);
-    let account = req.body.userAccount;
-    console.log(account);
+    let sAccount = req.body.userAccount;
+    console.log(sAccount);
 
-    let result = await User.findOneAndUpdate({ sUserId: account.toLowerCase()},{$set:{nTokens : 0}});
-    let result2 = await User.findOne({ sUserId: account.toLowerCase() });
+    let oResult = await User.findOneAndUpdate(
+      { sUserId: sAccount.toLowerCase() },
+      { $set: { nTokens: 0 } }
+    );
+    let oResult2 = await User.findOne({ sUserId: sAccount.toLowerCase() });
 
-    console.log(result2);
-    console.log(result);
-    if (result || result.nTokens > 0) {
-      let balance = result.nTokens;
-      console.log(balance);
-      let deleteData = await User({
-      })
+    console.log(oResult2);
+    console.log(oResult);
+    if (oResult || oResult.nTokens > 0) {
+      let nBalance = oResult.nTokens;
+      console.log(nBalance);
       return res.status(200).send("Data Deleted");
     } else {
       return res.status(400).send("Account not found");

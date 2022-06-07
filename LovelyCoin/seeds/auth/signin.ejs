@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Login</title>
+
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+      crossorigin="anonymous"
+    ></script>
+
+    <link rel="shortcut icon" href=" " />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+      integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Login and Registration Form with HTML5 and CSS3"
+    />
+    <meta
+      name="keywords"
+      content="html5, css3, form, switch, animation, :target, pseudo-class"
+    />
+    <meta name="author" content="Codrops" />
+    <link rel="shortcut icon" href="../favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="./css/demo.css" />
+    <link rel="stylesheet" type="text/css" href="./css/style.css" />
+    <link rel="stylesheet" type="text/css" href="./css/animate-custom.css" />
+  </head>
+
+  <body>
+    <div class="container">
+      <section>
+        <div id="container_demo">
+          <!-- hidden anchor to stop jump http://www.css3create.com/Astuce-Empecher-le-scroll-avec-l-utilisation-de-target#wrap4  -->
+          <a class="hiddenanchor" id="toregister"></a>
+          <a class="hiddenanchor" id="tologin"></a>
+          <div id="wrapper">
+            <div id="login" class="animate form">
+              <h1>Log in</h1>
+              <p>
+                <label for="username" class="uname" data-icon="u">
+                  Your UserName
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="nm"
+                  name="UserName"
+                  placeholder="UserName"
+                />
+              </p>
+              <p>
+                <label for="password" class="youpasswd" data-icon="p">
+                  Your password
+                </label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="pass"
+                  name="password"
+                  placeholder="Password"
+                />
+              </p>
+              <p class="login button">
+                <button class="w3-container w3-teal" id="signin" type="submit">
+                  Login
+                </button>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      $(document).ready(function (e) {
+        $("#signin").on("click", function () {
+          let data = {
+            sUserName: $("#nm").val(),
+            sPassword: $("#pass").val(),
+          };
+
+          if (data) {
+            $.ajax({
+              type: "post",
+              url: "/api/v1/auth/signin",
+              data: data,
+              success: function (result, status, xhr) {
+                console.log("result =>>>> : ", result);
+                /*let tokenData = localStorage.getItem("token");
+              console.log("tokendata : ",tokenData);*/
+
+                swal({
+                  title: "Good job!",
+                  text: "You are successfully LoggedIn!",
+                  icon: "success",
+                });
+                setTimeout(() => {
+                  window.location.assign("http://localhost:3000/user/transfer");
+                }, 2000);
+              },
+              error: function (error) {
+                console.log(error);
+                swal({
+                  title: "bad job!",
+                  text: "Enter Valid Email Or password!",
+                  icon: "error",
+                });
+              },
+            });
+          } else {
+            swal({
+              title: "bad job!",
+              text: "Enter Valid Name Or password!",
+              icon: "error",
+            });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
